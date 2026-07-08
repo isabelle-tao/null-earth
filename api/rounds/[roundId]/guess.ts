@@ -1,4 +1,4 @@
-import { scoreGuess } from "../../_utils";
+import { scoreGuess } from "../../_utils.js";
 
 type RequestLike = {
   method?: string;

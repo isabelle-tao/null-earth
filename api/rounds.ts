@@ -1,4 +1,4 @@
-import { activeLocations, createRoundToken, pickLocation } from "./_utils";
+import { activeLocations, createRoundToken, pickLocation } from "./_utils.js";
 
 type RequestLike = {
   method?: string;

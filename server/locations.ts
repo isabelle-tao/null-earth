@@ -1,4 +1,4 @@
-import type { GameLocation } from "../shared/game";
+import type { GameLocation } from "../shared/game.js";
 
 export const locations: GameLocation[] = [
   {

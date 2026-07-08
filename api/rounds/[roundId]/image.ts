@@ -1,4 +1,4 @@
-import { locationFromRoundToken, sendStreetViewImage } from "../../_utils";
+import { locationFromRoundToken, sendStreetViewImage } from "../../_utils.js";
 
 type RequestLike = {
   query: { roundId?: string | string[] };

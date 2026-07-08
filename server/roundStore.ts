@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
-import type { GameLocation, GuessResult, RoundPublic } from "../shared/game";
-import { formatDistance, haversineKm, isValidCoordinate, scoreForDistance } from "../shared/game";
-import { loadLocations, summarizeLocations } from "./locationDeck";
+import type { GameLocation, GuessResult, RoundPublic } from "../shared/game.js";
+import { formatDistance, haversineKm, isValidCoordinate, scoreForDistance } from "../shared/game.js";
+import { loadLocations, summarizeLocations } from "./locationDeck.js";
 
 const locations = loadLocations();
 

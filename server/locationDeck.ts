@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { GameLocation } from "../shared/game";
-import { locations as starterLocations } from "./locations";
+import type { GameLocation } from "../shared/game.js";
+import { locations as starterLocations } from "./locations.js";
 
 const deckPath = path.resolve(process.cwd(), "server", "data", "locations.generated.json");
 
