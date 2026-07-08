@@ -51,7 +51,7 @@ export function createRound(): Promise<ClientRound> {
 }
 
 export function submitGuess(roundId: string, guess: Coordinates): Promise<GuessResult> {
-  return request<GuessResult>(`/api/rounds/${roundId}/guess`, {
+  return request<GuessResult>(`/api/guess?roundId=${encodeURIComponent(roundId)}`, {
     method: "POST",
     body: JSON.stringify(guess),
   });

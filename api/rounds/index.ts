@@ -26,7 +26,7 @@ export default function handler(request: RequestLike, response: ResponseLike) {
 
   response.status(200).json({
     roundId,
-    imageUrl: `/api/rounds/${encodeURIComponent(roundId)}/image`,
+    imageUrl: `/api/round-image?roundId=${encodeURIComponent(roundId)}`,
     category: location.category,
     deckSize: activeLocations().length,
   });
