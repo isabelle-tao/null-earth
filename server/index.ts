@@ -27,6 +27,31 @@ app.post("/api/rounds", (request, response, next) => {
   }
 });
 
+app.get("/api/round-image", async (request, response, next) => {
+  const roundId = typeof request.query.roundId === "string" ? request.query.roundId : undefined;
+  const round = roundId ? getRound(roundId) : undefined;
+  if (!round) {
+    response.status(404).json({ error: "Round not found." });
+    return;
+  }
+
+  try {
+    const upstream = await fetch(buildStreetViewUrl(round.location));
+    if (!upstream.ok || !upstream.body) {
+      response.status(502).send("Street View image could not be loaded.");
+      return;
+    }
+
+    response.setHeader("Content-Type", upstream.headers.get("content-type") ?? "image/jpeg");
+    response.setHeader("Cache-Control", "private, max-age=300");
+
+    const image = Buffer.from(await upstream.arrayBuffer());
+    response.send(image);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/rounds/:roundId/image", async (request, response, next) => {
   const round = getRound(request.params.roundId);
   if (!round) {
@@ -46,6 +71,20 @@ app.get("/api/rounds/:roundId/image", async (request, response, next) => {
 
     const image = Buffer.from(await upstream.arrayBuffer());
     response.send(image);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/guess", (request, response, next) => {
+  const roundId = typeof request.query.roundId === "string" ? request.query.roundId : undefined;
+  if (!roundId) {
+    response.status(404).json({ error: "Round not found." });
+    return;
+  }
+
+  try {
+    response.json(submitGuess(roundId, request.body));
   } catch (error) {
     next(error);
   }

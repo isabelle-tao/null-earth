@@ -24,6 +24,21 @@ type DeckState = {
 const rounds = new Map<string, StoredRound>();
 const sessionDecks = new Map<string, DeckState>();
 
+function locationUniqueKey(location: GameLocation) {
+  if (location.streetView.panoId) return `pano:${location.streetView.panoId}`;
+  return `coords:${location.lat.toFixed(5)},${location.lng.toFixed(5)}`;
+}
+
+function uniqueLocationsByView(allLocations: GameLocation[]) {
+  const seen = new Set<string>();
+  return allLocations.filter((location) => {
+    const key = locationUniqueKey(location);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function shuffle<T>(items: T[]): T[] {
   const shuffled = [...items];
   for (let index = shuffled.length - 1; index > 0; index -= 1) {
@@ -42,8 +57,8 @@ function refillDeck(active: GameLocation[], deck: DeckState) {
 }
 
 export function selectRandomLocation(allLocations: GameLocation[] = locations, sessionId = "default"): GameLocation {
-  const active = allLocations.filter(
-    (location) => location.status === "active" && location.peoplePolicy === "verified-empty",
+  const active = uniqueLocationsByView(
+    allLocations.filter((location) => location.status === "active" && location.peoplePolicy === "verified-empty"),
   );
   if (active.length === 0) {
     throw new Error("No active locations are configured.");
@@ -97,7 +112,7 @@ export function createRound(origin = "", sessionId = "default"): RoundPublic {
 
   return {
     roundId: id,
-    imageUrl: `${origin}/api/rounds/${id}/image`,
+    imageUrl: `${origin}/api/round-image?roundId=${encodeURIComponent(id)}`,
     category: location.category,
   };
 }

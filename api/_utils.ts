@@ -27,6 +27,33 @@ export function activeLocations() {
   return locations.filter((location) => location.status === "active" && location.peoplePolicy === "verified-empty");
 }
 
+function locationUniqueKey(location: GameLocation) {
+  if (location.streetView.panoId) return `pano:${location.streetView.panoId}`;
+  return `coords:${location.lat.toFixed(5)},${location.lng.toFixed(5)}`;
+}
+
+function uniqueLocationsByView(allLocations: GameLocation[]) {
+  const seen = new Set<string>();
+  return allLocations.filter((location) => {
+    const key = locationUniqueKey(location);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function hashInt(value: string) {
+  return crypto.createHash("sha256").update(value).digest().readUInt32BE(0);
+}
+
+function shuffledForSession(allLocations: GameLocation[], sessionId: string, deckIndex: number) {
+  return [...allLocations].sort((first, second) => {
+    const firstRank = hashInt(`${sessionId}:${deckIndex}:${first.id}`);
+    const secondRank = hashInt(`${sessionId}:${deckIndex}:${second.id}`);
+    return firstRank - secondRank;
+  });
+}
+
 export function deckSummary() {
   return summarizeLocations(locations);
 }
@@ -45,12 +72,13 @@ export function locationFromRoundToken(roundId: string): GameLocation | undefine
 }
 
 export function pickLocation(sessionId: string, roundIndex = 0) {
-  const active = activeLocations();
+  const active = uniqueLocationsByView(activeLocations());
   if (active.length === 0) throw new Error("No active locations are configured.");
 
-  const hash = crypto.createHash("sha256").update(sessionId).digest();
-  const offset = hash.readUInt32BE(0) % active.length;
-  return active[(offset + roundIndex) % active.length];
+  const normalizedRoundIndex = Math.max(0, Math.floor(roundIndex));
+  const deckIndex = Math.floor(normalizedRoundIndex / active.length);
+  const shuffled = shuffledForSession(active, sessionId, deckIndex);
+  return shuffled[normalizedRoundIndex % shuffled.length];
 }
 
 export async function sendStreetViewImage(response: { status: (code: number) => unknown; setHeader: (key: string, value: string) => unknown; send: (body: Buffer | string) => unknown }, location: GameLocation) {

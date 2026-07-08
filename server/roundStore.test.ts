@@ -69,7 +69,7 @@ describe("round APIs", () => {
     const round = createRound("http://localhost:8787");
     expect(round).toEqual({
       roundId: expect.any(String),
-      imageUrl: expect.stringContaining("/api/rounds/"),
+      imageUrl: expect.stringContaining("/api/round-image?roundId="),
       category: expect.any(String),
     });
     expect(JSON.stringify(round)).not.toMatch(/lat|lng|country|region/);
