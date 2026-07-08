@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+outputs
+*.tsbuildinfo
+*.d.ts
+server/*.js
+shared/*.js
