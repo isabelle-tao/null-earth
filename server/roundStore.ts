@@ -25,6 +25,8 @@ const rounds = new Map<string, StoredRound>();
 const sessionDecks = new Map<string, DeckState>();
 
 function locationUniqueKey(location: GameLocation) {
+  const placeKey = `${location.country}:${location.label}`.toLowerCase();
+  if (placeKey) return `place:${placeKey}`;
   if (location.streetView.panoId) return `pano:${location.streetView.panoId}`;
   return `coords:${location.lat.toFixed(5)},${location.lng.toFixed(5)}`;
 }
