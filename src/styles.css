@@ -42,14 +42,14 @@ button:disabled {
 }
 
 .shell {
-  width: min(1500px, 100%);
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
-  margin: 0 auto;
-  padding: 12px;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   overflow: hidden;
 }
 
@@ -117,7 +117,7 @@ dt {
   flex: 1;
   display: grid;
   grid-template-columns: minmax(660px, 1.45fr) minmax(430px, 0.95fr);
-  gap: 10px;
+  gap: 0;
 }
 
 .viewer-panel,
@@ -273,8 +273,8 @@ dd {
 
 @media (max-height: 760px) and (min-width: 921px) {
   .shell {
-    padding: 10px;
-    gap: 8px;
+    padding: 0;
+    gap: 0;
   }
 
   .topbar {
@@ -359,7 +359,7 @@ dd {
 
 @media (max-width: 540px) {
   .shell {
-    padding: 10px;
+    padding: 0;
   }
 
   .score-strip,
