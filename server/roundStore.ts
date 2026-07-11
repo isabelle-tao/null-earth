@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import type { GameLocation, GuessResult, RoundPublic } from "../shared/game.js";
-import { formatDistance, haversineKm, isValidCoordinate, scoreForDistance } from "../shared/game.js";
+import { buildStreetViewViewer, formatDistance, haversineKm, isValidCoordinate, scoreForDistance } from "../shared/game.js";
 import { loadLocations, summarizeLocations } from "./locationDeck.js";
 
 const locations = loadLocations();
@@ -110,12 +110,14 @@ export function buildStreetViewUrl(location: GameLocation): string {
 export function createRound(origin = "", sessionId = "default"): RoundPublic {
   const location = selectRandomLocation(locations, sessionId);
   const id = crypto.randomUUID();
+  const imageUrl = `${origin}/api/round-image?roundId=${encodeURIComponent(id)}`;
   rounds.set(id, { id, location });
 
   return {
     roundId: id,
-    imageUrl: `${origin}/api/round-image?roundId=${encodeURIComponent(id)}`,
+    imageUrl,
     category: location.category,
+    viewer: buildStreetViewViewer(location, imageUrl),
   };
 }
 

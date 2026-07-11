@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createRound, submitGuess, type ClientRound } from "./api";
 import { GoogleGuessMap } from "./GoogleGuessMap";
+import { StreetViewViewer, type StreetViewCommand } from "./StreetViewViewer";
 import type { Coordinates, GuessResult } from "../shared/game";
 
 type RoundHistoryItem = {
@@ -15,8 +16,8 @@ export function App() {
   const [selectedGuess, setSelectedGuess] = useState<Coordinates | null>(null);
   const [result, setResult] = useState<GuessResult | null>(null);
   const [history, setHistory] = useState<RoundHistoryItem[]>([]);
-  const [imageZoom, setImageZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewerCommand, setViewerCommand] = useState<StreetViewCommand | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +30,6 @@ export function App() {
     setError(null);
     setSelectedGuess(null);
     setResult(null);
-    setImageZoom(1);
 
     try {
       const nextRound = await createRound();
@@ -69,6 +69,10 @@ export function App() {
     }
   };
 
+  const sendViewerCommand = (action: StreetViewCommand["action"]) => {
+    setViewerCommand((command) => ({ id: (command?.id ?? 0) + 1, action }));
+  };
+
   return (
     <main className="shell">
       <section className="topbar" aria-label="Session status">
@@ -87,14 +91,17 @@ export function App() {
         <div className="viewer-panel">
           <div className="panel-header">
             <div>
-              <p className="mono-label">STREET VIEW FRAME</p>
-              <span>{round?.category ?? "Scanning"}</span>
+              <p className="mono-label">STREET VIEW PANORAMA</p>
+              <span>{round ? "Drag to look around" : "Scanning"}</span>
             </div>
             <div className="icon-controls">
-              <button type="button" title="Zoom out" onClick={() => setImageZoom((zoom) => Math.max(1, zoom - 0.15))}>
+              <button type="button" title="Reset view" disabled={!round || isLoading} onClick={() => sendViewerCommand("reset")}>
+                Reset
+              </button>
+              <button type="button" title="Zoom out" disabled={!round || isLoading} onClick={() => sendViewerCommand("zoom-out")}>
                 -
               </button>
-              <button type="button" title="Zoom in" onClick={() => setImageZoom((zoom) => Math.min(2.2, zoom + 0.15))}>
+              <button type="button" title="Zoom in" disabled={!round || isLoading} onClick={() => sendViewerCommand("zoom-in")}>
                 +
               </button>
               <button type="button" title="Fullscreen" onClick={() => setIsFullscreen((value) => !value)}>
@@ -105,11 +112,7 @@ export function App() {
 
           <div className="image-stage">
             {round && !isLoading ? (
-              <img
-                src={round.imageUrl}
-                alt="Mystery street view location"
-                style={{ transform: `scale(${imageZoom})` }}
-              />
+              <StreetViewViewer viewer={round.viewer} command={viewerCommand} />
             ) : (
               <div className="loading-frame">ACQUIRING SIGNAL</div>
             )}
@@ -170,17 +173,8 @@ export function App() {
               <p>Inspect the frame. Place one marker. No timer. No metadata.</p>
             </section>
           )}
-        </aside>
-      </section>
 
-      <section className="history-band" aria-label="Round history">
-        {history.slice(0, 6).map((item) => (
-          <article key={item.roundId} className="history-item">
-            <span>{item.points} pts</span>
-            <strong>{item.distance}</strong>
-            <p>{item.label}</p>
-          </article>
-        ))}
+        </aside>
       </section>
     </main>
   );

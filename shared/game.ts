@@ -26,10 +26,22 @@ export type GameLocation = Coordinates & {
   status: "active" | "inactive";
 };
 
+export type StreetViewViewerPublic = {
+  kind: "street-view";
+  panoId?: string;
+  position?: Coordinates;
+  pov: {
+    heading: number;
+    pitch: number;
+  };
+  fallbackImageUrl: string;
+};
+
 export type RoundPublic = {
   roundId: string;
   imageUrl: string;
   category: LocationCategory;
+  viewer: StreetViewViewerPublic;
 };
 
 export type GuessResult = {
@@ -79,6 +91,19 @@ export function formatDistance(distanceKm: number): string {
     return `${distanceKm.toFixed(1)} km`;
   }
   return `${Math.round(distanceKm).toLocaleString("en-US")} km`;
+}
+
+export function buildStreetViewViewer(location: GameLocation, fallbackImageUrl: string): StreetViewViewerPublic {
+  return {
+    kind: "street-view",
+    panoId: location.streetView.panoId,
+    position: location.streetView.panoId ? undefined : { lat: location.lat, lng: location.lng },
+    pov: {
+      heading: location.streetView.heading,
+      pitch: location.streetView.pitch,
+    },
+    fallbackImageUrl,
+  };
 }
 
 export function isValidCoordinate(value: unknown): value is Coordinates {

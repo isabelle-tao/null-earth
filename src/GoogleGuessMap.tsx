@@ -1,6 +1,6 @@
-import { Loader } from "@googlemaps/js-api-loader";
 import { useEffect, useRef, useState } from "react";
 import type { Coordinates, GuessResult } from "../shared/game";
+import { loadGoogleMaps } from "./googleMapsLoader";
 
 type GoogleGuessMapProps = {
   selectedGuess: Coordinates | null;
@@ -8,8 +8,6 @@ type GoogleGuessMapProps = {
   disabled: boolean;
   onGuessChange: (guess: Coordinates) => void;
 };
-
-const browserKey = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY;
 
 const darkMapStyles = [
   { elementType: "geometry", stylers: [{ color: "#171a1d" }] },
@@ -37,20 +35,9 @@ export function GoogleGuessMap({ selectedGuess, result, disabled, onGuessChange 
   }, [disabled]);
 
   useEffect(() => {
-    if (!browserKey) {
-      setError("VITE_GOOGLE_MAPS_BROWSER_KEY is required for the interactive guess map.");
-      return;
-    }
-
-    const loader = new Loader({
-      apiKey: browserKey,
-      version: "weekly",
-    });
-
     let cancelled = false;
 
-    loader
-      .load()
+    loadGoogleMaps()
       .then(() => {
         if (cancelled || !mapElement.current) return;
         const map = new google.maps.Map(mapElement.current, {

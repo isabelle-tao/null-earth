@@ -1,4 +1,5 @@
 import { activeLocations, createRoundToken, pickLocation } from "../_utils.js";
+import { buildStreetViewViewer } from "../../shared/game.js";
 
 type RequestLike = {
   method?: string;
@@ -23,11 +24,13 @@ export default function handler(request: RequestLike, response: ResponseLike) {
   const roundIndex = Number(rawRoundIndex ?? "0");
   const location = pickLocation(sessionId, Number.isFinite(roundIndex) ? roundIndex : 0);
   const roundId = createRoundToken(location.id);
+  const imageUrl = `/api/round-image?roundId=${encodeURIComponent(roundId)}`;
 
   response.status(200).json({
     roundId,
-    imageUrl: `/api/round-image?roundId=${encodeURIComponent(roundId)}`,
+    imageUrl,
     category: location.category,
+    viewer: buildStreetViewViewer(location, imageUrl),
     deckSize: activeLocations().length,
   });
 }

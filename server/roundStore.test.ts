@@ -65,14 +65,23 @@ describe("selectRandomLocation", () => {
 });
 
 describe("round APIs", () => {
-  it("does not expose coordinates in public round payload", () => {
+  it("exposes a playable viewer payload in public round data", () => {
     const round = createRound("http://localhost:8787");
-    expect(round).toEqual({
+    expect(round).toMatchObject({
       roundId: expect.any(String),
       imageUrl: expect.stringContaining("/api/round-image?roundId="),
       category: expect.any(String),
+      viewer: {
+        kind: "street-view",
+        pov: {
+          heading: expect.any(Number),
+          pitch: expect.any(Number),
+        },
+        fallbackImageUrl: expect.stringContaining("/api/round-image?roundId="),
+      },
     });
-    expect(JSON.stringify(round)).not.toMatch(/lat|lng|country|region/);
+    expect(round.viewer.panoId || round.viewer.position).toBeTruthy();
+    expect(JSON.stringify(round)).not.toMatch(/country|region/);
   });
 
   it("rejects malformed guesses", () => {
